@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<robot 
+     xmlns:xacro="http://www.ros.org/wiki/xacro" name="mobot">
+    <xacro:include filename="$(find mobot_urdf)/urdf/mobot_xacro_defs.xacro" />
+    <xacro:include filename="$(find mobot_urdf)/urdf/mobot_static_links.xacro" />
+    <xacro:include filename="$(find mobot_urdf)/urdf/mobot_wheels.xacro" />    
+    <xacro:include filename="$(find mobot_urdf)/urdf/casters.xacro" />
+    <xacro:include filename="$(find mobot_urdf)/urdf/gazebo_tags.xacro" />
+</robot>

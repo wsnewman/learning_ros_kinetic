@@ -1,0 +1,19 @@
+coordination commands:
+Start up gazebo, add starting pen, tables and blocks, spawn baxter-on-mobot:  
+ (optirun) `roslaunch baxter_variations baxter_on_mobot.launch` 
+
+
+Launch multiple nodes, including 6 action servers, 2 services,  and rviz (including trajectory streamers, 
+cartesian planner, rviz, baxter-playfile,  triad_display, object-grabber, object-finder and coordinator).  Same
+as coordinator for baxter on pedestal:
+`roslaunch coordinator coord_vision_manip.launch`
+
+Optionally, test with this example client of the coordinator:
+`rosrun coordinator coordinator_action_client_tester`
+
+Start up map server (with starting-pen map), amcl, and move_base with 4 nav config files.  Nearly identical
+to nav-launch in Part-4, except do not start up rviz (again):
+
+`roslaunch baxter_variations mobot_startup_navstack.launch`
+
+

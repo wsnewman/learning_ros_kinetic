@@ -1,0 +1,16 @@
+<launch>
+<!--add a red block to view using the following line, or running: roslaunch exmpl_models add_small_red_block.launch-->
+<!--node name="spawn_sdf" pkg="gazebo_ros" type="spawn_model" 
+  args="-file $(find exmpl_models)/colored_block/model-1_4.sdf -sdf -model block -z 0.01" /-->
+ 
+<!--launch image_view for left camera, and find_red_pixels for left camera-->
+<node pkg="image_view" type="image_view" name="image_view_left">
+<remap from="image" to="/stereo_camera/left/image_raw"/>
+</node>
+
+<node pkg="example_opencv" type="find_red_pixels" name="find_red_pixels_left" output="screen">
+<remap from="simple_camera/image_raw" to="/stereo_camera/left/image_raw"/>
+</node>
+
+
+</launch>

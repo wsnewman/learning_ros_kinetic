@@ -1,0 +1,7 @@
+<launch>
+  <include file="$(find baxter_launch_files)/launch/baxter_object_grabber_nodes.launch" />
+
+  <node pkg="object_finder" type="object_finder_as" name="object_finder_as" />
+  <node pkg="example_rviz_marker" type="triad_display" name="triad_display" />
+
+</launch>

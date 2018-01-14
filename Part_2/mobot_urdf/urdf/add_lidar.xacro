@@ -1,37 +1,17 @@
 <?xml version="1.0"?>
-<robot  name="lidar_wobbler">
-
-<!-- Used for fixing robot to Gazebo 'base_link' -->
-  <link name="world"/>
-
-  <joint name="glue_frame_to_world" type="fixed">
-    <parent link="world"/>
-    <child link="link1"/>
-  </joint>
-
- <!-- Base Link -->
-  <link name="link1">
-
-    <inertial>
-      <origin xyz="0 0 0.5" rpy="0 0 0"/>
-      <mass value="1"/>
-      <inertia
-        ixx="1.0" ixy="0.0" ixz="0.0"
-        iyy="1.0" iyz="0.0"
-        izz="1.0"/>
-    </inertial>
-  </link>
-
-<!-- Moveable Link -->
-<!-- add a simulated lidar, including visual, collision and inertial properties, and physics simulation-->
+<robot 
+     xmlns:xacro="http://www.ros.org/wiki/xacro" name="gazebo_tags">
+       
+   <!-- add a simulated lidar, including visual, collision and inertial properties, and physics simulation-->
   <link name="lidar_link">
       <!-- coarse LIDAR model; a simple box -->
       <!--collision>
-          <origin xyz="0.5 0 0.5" rpy="0 0 0"/>
+          <origin xyz="0 0 0" rpy="0 0 0"/>
           <geometry>
+
               <box size="0.2 0.2 0.2"/>
           </geometry>
-      </collision-->
+      </collision!-->
 
       <visual>
           <origin xyz="0 0 0" rpy="0 0 0" />
@@ -51,33 +31,12 @@
   </link>
   <!--the above displays a box meant to imply Lidar-->
 
-  <joint name="joint1" type="revolute">
-    <parent link="link1"/>
-    <child link="lidar_link"/>
-    <origin xyz="0 0 1" rpy="0 0 0"/>
-    <axis xyz="0 1 0"/>
-    <limit effort="10.0" lower="0.0" upper="6.28" velocity="0.5"/>
-    <dynamics damping="1.0"/>
+  <joint name="lidar_joint" type="fixed">
+      <axis xyz="0 1 0" />
+      <origin xyz="0.1 0 0.56" rpy="0 0 0"/>
+      <parent link="base_link"/>
+      <child link="lidar_link"/>
   </joint>
-
-  <transmission name="tran1">
-    <type>transmission_interface/SimpleTransmission</type>
-    <joint name="joint1">
-      <hardwareInterface>EffortJointInterface</hardwareInterface>
-    </joint>
-    <actuator name="motor1">
-      <hardwareInterface>EffortJointInterface</hardwareInterface>
-      <mechanicalReduction>1</mechanicalReduction>
-    </actuator>
-  </transmission>
-  <gazebo>
-     <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
-       <robotNamespace>/lidar_wobbler</robotNamespace>
-     </plugin>
-  </gazebo>
-
-
-
     <!-- here is the gazebo plug-in to simulate a lidar sensor -->
   <gazebo reference="lidar_link">
     <sensor type="ray" name="sick_lidar_sensor">
@@ -109,7 +68,6 @@
         <frameName>lidar_link</frameName>
       </plugin>
     </sensor>
-  </gazebo>    
-  
-</robot>
+  </gazebo>  
 
+</robot>

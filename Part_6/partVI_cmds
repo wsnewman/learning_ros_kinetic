@@ -16,4 +16,9 @@ to nav-launch in Part-4, except do not start up rviz (again):
 
 `roslaunch baxter_variations mobot_startup_navstack.launch`
 
+`roslaunch baxter_variations baxter_on_mobot.launch`
+
+`roslaunch coordinator command_bundler.launch`
+
+`rosrun coordinator fetch_and_stack_client`
 

@@ -4,7 +4,7 @@
        
  <gazebo>
   <plugin name="differential_drive_controller" filename="libgazebo_ros_diff_drive.so">
-    <alwaysOn>true</alwaysOn>
+   <alwaysOn>true</alwaysOn>
     <updateRate>100</updateRate>
     <leftJoint>right_wheel_joint</leftJoint>
     <rightJoint>left_wheel_joint</rightJoint>
@@ -15,9 +15,22 @@
     <odometryTopic>odom</odometryTopic>
     <odometryFrame>odom</odometryFrame>
     <robotBaseFrame>base_link</robotBaseFrame>
-    <publishWheelTF>true</publishWheelTF>
+    <!--don't publish wheel TF, so it does not conflict with robot_state_publisher -->
+    <publishWheelTF>false</publishWheelTF>
     <publishWheelJointState>true</publishWheelJointState>
+    <legacyMode>true</legacyMode>
+    <odometrySource>encoder</odometrySource>
+    <wheelTorque>5</wheelTorque>
+    <wheelAcceleration>0</wheelAcceleration>
+    <rosDebugLevel>na</rosDebugLevel>
+    <publishTf>1</publishTf>
   </plugin>
  </gazebo> 
+  <gazebo>
+     <plugin name="joint_state_publisher" filename="libgazebo_ros_joint_state_publisher.so">
+       <jointName>cast2bracket_right, cast2bracket_left, right_caster_joint, left_caster_joint </jointName>
+     <updateRate>100</updateRate>
+     </plugin>
+  </gazebo> 
 
 </robot>

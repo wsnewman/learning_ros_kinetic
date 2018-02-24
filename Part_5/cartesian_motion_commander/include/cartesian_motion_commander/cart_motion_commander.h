@@ -71,6 +71,11 @@ public:
     int plan_cartesian_traj_qprev_to_des_tool_pose(int nsteps, double arrival_time, geometry_msgs::PoseStamped des_pose);
 
     int append_multi_traj_cart_segment(int nsteps, double arrival_time, geometry_msgs::PoseStamped des_pose);
+    int get_path_num_segments();
+    void get_replanned_arrival_times(std::vector<double> &segment_arrival_times);
+    void replan_discontinuities(); //chop into multiple segments
+
+    
     //uint8 APPEND_MULTI_TRAJ_JSPACE_SEGMENT = 28 not implemented yet; not needed?
     //int append_multi_traj_jspace_segment()
     

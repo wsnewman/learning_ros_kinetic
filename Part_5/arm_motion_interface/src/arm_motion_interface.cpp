@@ -5,6 +5,14 @@
 #include<arm_motion_interface/arm_motion_interface.h>
 #include "arm_motion_interface_switcher.cpp"
 
+void print_traj_point(trajectory_msgs::JointTrajectoryPoint traj_pt) {
+    int njnts = traj_pt.positions.size();
+    for (int i=0;i<njnts-1;i++) {
+        cout<<traj_pt.positions[i]<<", ";
+    }
+    cout<<traj_pt.positions[njnts-1]<<endl;
+}
+
 ArmMotionInterface::ArmMotionInterface(ros::NodeHandle* nodehandle, ArmMotionInterfaceInits armMotionInterfaceInits) : nh_(*nodehandle),
 cart_move_as_(*nodehandle, "cartMoveActionServer", boost::bind(&ArmMotionInterface::executeCB, this, _1), false), action_client_(armMotionInterfaceInits.traj_as_name.c_str(), true)
 //traj_publisher_("joint_path_command", 1)
@@ -584,6 +592,127 @@ bool ArmMotionInterface::append_multi_traj_jspace_segment() {
     traj_plan_wrapup();
     return traj_is_valid_;
 }
+
+void ArmMotionInterface::get_num_path_segs() {
+     cart_result_.num_path_segs = pCartTrajPlanner_->get_num_path_segs();
+     ROS_INFO("returning num path segs = %d",cart_result_.num_path_segs);
+     cart_result_.return_code = arm_motion_action::arm_interfaceResult::SUCCESS;
+     cart_move_as_.setSucceeded(cart_result_); 
+}
+
+void ArmMotionInterface::replan_discontinuities() {
+    std::vector<Eigen::VectorXd> path;
+    std::vector<double> arrival_times;
+    double arrival_time;
+    //replan from multi_traj_vec_.push_back(des_trajectory_segment_);
+    trajectory_msgs::JointTrajectory broken_traj, partial_traj, bridge_traj;
+    int num_multi_traj = multi_traj_vec_.size();
+    broken_traj = multi_traj_vec_.back();
+    partial_traj.header = broken_traj.header;
+    partial_traj.joint_names = broken_traj.joint_names;
+    bridge_traj.header = broken_traj.header;
+    bridge_traj.joint_names = broken_traj.joint_names;
+    //double orig_time = (broken_traj.time_from_start).toSec();
+    int orig_num_pts = broken_traj.points.size();
+
+    std::vector<int> seg_pts;
+    pCartTrajPlanner_->get_seg_pts(seg_pts);
+    int n_breaks = seg_pts.size();
+    ROS_INFO("repairing %d discontinuities", n_breaks);
+
+    trajectory_msgs::JointTrajectoryPoint start_bridge_pt, end_bridge_pt, traj_pt;
+    int break_index = seg_pts[0]; //index of pt BEFORE bridge
+    ROS_INFO("break_index = %d",break_index);
+    for (int i = 0; i <= break_index; i++) {
+        //copy the first part of trajectory, up to discontinuity, verbatim
+        partial_traj.points.push_back(broken_traj.points[i]);
+    }
+    //replace broken traj with this partial traj:
+    multi_traj_vec_[num_multi_traj - 1] = partial_traj;
+    //save the partial-traj duration:
+    arrival_time = (partial_traj.points.back()).time_from_start.toSec();
+    arrival_times.push_back(arrival_time);
+
+    //now, for each break point, make a bridge from prior seg to next seg,
+    //append this trajectory, then append the following segment
+    int end_index;
+    for (int ibreak = 0; ibreak < n_breaks; ibreak++) {
+        //create a joint-space bridge to start of the next segment:
+        break_index = seg_pts[ibreak]; //beginning of bridge
+        ROS_INFO("starting bridge at index = %d",break_index);
+        if (ibreak<n_breaks-1) {
+            end_index = seg_pts[ibreak]+1;
+        }
+        else {
+            end_index = orig_num_pts-1;
+        }
+        ROS_INFO("to index %d",end_index);
+
+        bridge_traj.points.clear();
+        start_bridge_pt = partial_traj.points.back();//broken_traj.points[break_index-1];
+        start_bridge_pt.time_from_start = ros::Duration(0.01);
+        bridge_traj.points.push_back(start_bridge_pt);
+
+        end_bridge_pt = broken_traj.points[break_index+1];
+        arrival_time = 1.5;//fixed time for bridge, e.g. wrist flip
+        end_bridge_pt.time_from_start = ros::Duration(arrival_time); //
+        bridge_traj.points.push_back(end_bridge_pt);
+        ROS_INFO("start bridge: ");
+        print_traj_point(start_bridge_pt);
+        ROS_INFO("end bridge: ");
+        print_traj_point(end_bridge_pt);
+        //cout<<"start: "<<start_bridge_pt.positions<<endl;
+        //cout<<"end: "<<end_bridge_pt.positions<<endl;
+        
+        
+        multi_traj_vec_.push_back(bridge_traj);
+        arrival_times.push_back(arrival_time);
+        
+        //now extract and append next continuous segment:
+
+        ROS_INFO("appending next continuous path");
+        partial_traj.points.clear();
+        ros::Duration start_duration = (broken_traj.points[break_index+1]).time_from_start;
+        for (int ipt = break_index+1; ipt<=end_index;ipt++) {
+            traj_pt= broken_traj.points[ipt];
+            traj_pt.time_from_start -= start_duration;
+            partial_traj.points.push_back(traj_pt);
+        }
+        multi_traj_vec_.push_back(partial_traj);
+        double start_time = (broken_traj.points[break_index+1]).time_from_start.toSec();
+        double end_time = (broken_traj.points[end_index]).time_from_start.toSec();
+        arrival_time = end_time-start_time;
+        arrival_times.push_back(arrival_time);
+        
+        //and repeat for rest of segments...correcting for time_from_start vals
+
+    }
+
+    //path_to_traj(path, arrival_time, new_trajectory); 
+    //trajectory_msgs::JointTrajectoryPoint end_point = broken_traj.points[0];
+    //std_msgs/Header header
+    //uint32 seq
+    //time stamp
+    //string frame_id
+    //string[] joint_names
+    //trajectory_msgs/JointTrajectoryPoint[] points
+    //  float64[] positions
+    //  float64[] velocities
+    //  float64[] accelerations
+    //  float64[] effort
+    //  duration time_from_start
+
+
+
+    //multi_traj_vec_
+    //pCartTrajPlanner_->replan_discontinuities();
+     cart_result_.return_code = arm_motion_action::arm_interfaceResult::SUCCESS;
+     cart_result_.segmented_path_arrival_times.clear();
+     cart_result_.segmented_path_arrival_times= arrival_times;
+
+     cart_move_as_.setSucceeded(cart_result_); 
+}
+
 
 bool ArmMotionInterface::plan_cartesian_traj_qprev_to_des_tool_pose() {
     goal_gripper_pose_ = cart_goal_.des_pose_gripper;

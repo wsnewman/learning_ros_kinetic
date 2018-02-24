@@ -345,14 +345,56 @@ bool CartTrajPlanner::plan_cartesian_traj_qstart_to_des_flange_affine(Eigen::Vec
      std::vector<Eigen::VectorXd> path;
      bool valid_path = plan_cartesian_path_w_rot_interp(q_start,a_flange_goal, nsteps,path);
      if (!valid_path) return false;
-
+     //    std::vector<int> seg_pts;
+     //int path_continuity_nsegs;
+     segment_path_discontinuities(path,seg_pts_);
+     //ROS_WARN("pausing...enter 1: ");
+     //int ans;
+     //cin>>ans;
      path_to_traj(path, arrival_time, new_trajectory); 
      return true;
         
   }
 
     
+int CartTrajPlanner::segment_path_discontinuities(std::vector<Eigen::VectorXd> path,std::vector<int> &seg_pts)  {
+    int npts = path.size();
+    path_continuity_nsegs_ = 1;
+    Eigen::VectorXd from_pt,to_pt,diff_pts;
+    seg_pts.clear();
+    from_pt = path[0];
+    to_pt = path[0];
+    double jdist;
+    ROS_INFO("checking path for discontinuities");
+
+    for (int ipt =1;ipt<npts;ipt++) {
+        from_pt = to_pt;
+        to_pt = path[ipt];
+        diff_pts = to_pt-from_pt;
+        jdist = diff_pts.norm();
+      
+        ROS_INFO("ipt = %d, jdist = %f ",ipt,jdist);
+        if (jdist>JOINT_DISCONTINUITY_THRESHOLD) {
+            ROS_WARN("discontinuity detected at ipt = %d",ipt);
+            cout<<"from: "<<from_pt.transpose()<<endl;
+            cout<<"to: "<<to_pt.transpose()<<endl;  
+            seg_pts.push_back(ipt-1);
+            path_continuity_nsegs_++;
+        }
+    }
+    ROS_INFO("computed num_segs: %d",path_continuity_nsegs_);
+    return path_continuity_nsegs_;
+}
+
+//given that the most recent mult-traj trajectory has one or more discontinuities, 
+// break this up into continuous and bridge traj segments
+//hmm...maybe this belongs in arm_motion_interface instead
+void CartTrajPlanner::replan_discontinuities() {
+    trajectory_msgs::JointTrajectory broken_trajectory;
+    //broken_trajectory = 
     
+}   
+     
 //Cartesian planner that interpolates both translation and rotation--using angle/axis interpolation--
 // starting from a specified joint-space pose and ending with a specified Cartesian-space pose
 // specify goal pose w/rt toolflange
@@ -480,6 +522,10 @@ bool CartTrajPlanner::plan_cartesian_path_w_rot_interp(Eigen::VectorXd q_start,E
     }
 
     //now, jsp is deleted, but optimal_path lives on:
+    
+
+
+    
     cout << "resulting solution path: " << endl;
     Eigen::Affine3d affine_fk;
     Eigen::Vector3d origin_fk;
@@ -493,6 +539,63 @@ bool CartTrajPlanner::plan_cartesian_path_w_rot_interp(Eigen::VectorXd q_start,E
     //refine this path, if necessary:
     //given jspace path, refine it, in case IK requires addl numerical correction:
     pIKSolver_->ik_refine(cartesian_affine_samples_, optimal_path);
+    
+     //THIS is a good place to check soln for continuity;
+    //modify optimal path to insert 2nd IK soln at discontinuities
+    //if discontinuous, can segment based on already-computed path_options
+    // set num segments and indices of bridges
+    // at start of discontinuity, insert a redundant IK soln for same pose,
+    //  but IK  soln close to start of new segment
+    // save the index at which this starts, to define a bridge traj e.g. for wrist flip
+    // resulting path can then be spliced into segments in post-process
+    std::vector<int> seg_pts;
+    
+    int num_continuous_segs = segment_path_discontinuities(optimal_path,seg_pts);
+    if (num_continuous_segs>1) {
+        ROS_WARN("path has discontinuities; inserting bridges");
+        std::vector<Eigen::VectorXd>::iterator ptr;  // Declaring iterator to a vector
+        std::vector<Eigen::VectorXd> bridge_option_nodes;
+        Eigen::VectorXd bridge_start_point, bridge_end_point, bridge_candidate_point, end_seg_pt;
+        int num_bridge_option_nodes;
+        int splice_index;
+        double point_dist,min_point_dist;
+        //need num bridge segments = num_continuous_segs-1
+        for (int i_bridge=0;i_bridge<num_continuous_segs-1;i_bridge++) {
+           splice_index = seg_pts[i_bridge];
+           ptr = optimal_path.begin()+splice_index+i_bridge; //insertion point--add i_bridge, since splices make vector longer
+           //search through optional IK solns at start of discontinuity, and choose the option that  is closest
+           //to the point following the discontinuity
+           bridge_option_nodes = path_options[splice_index];
+           num_bridge_option_nodes = bridge_option_nodes.size();
+           end_seg_pt = optimal_path[splice_index];
+           cout<<"end of cont seg: "<<end_seg_pt.transpose()<<endl;
+           bridge_end_point= optimal_path[splice_index+1];
+           cout<<"end of bridge point: "<<bridge_end_point.transpose()<<endl;
+           bridge_start_point=bridge_option_nodes[0];
+           min_point_dist = (bridge_end_point-bridge_start_point).norm();
+           for (int i=1;i<num_bridge_option_nodes;i++) {
+               bridge_candidate_point=bridge_option_nodes[i];
+               point_dist=(bridge_end_point-bridge_candidate_point).norm();
+               if (point_dist<min_point_dist) {
+                   min_point_dist=point_dist;
+                   bridge_start_point=bridge_candidate_point;
+               }
+           }
+           //now, bridge_start_point is the best splice point; insert it
+           ptr = optimal_path.begin()+splice_index+1;
+           optimal_path.insert(ptr, bridge_start_point);
+           seg_pts[i_bridge]+=i_bridge; //adjust location of discontinuity after insertion
+
+        }
+        ROS_INFO("modified optimal path: ");
+        for (int ilayer = 0; ilayer < nlayers; ilayer++) {
+            cout << "ilayer: " << ilayer << " node: " << optimal_path[ilayer].transpose() << endl;
+            affine_fk = pFwdSolver_->fwd_kin_solve(optimal_path[ilayer]);
+            origin_fk=affine_fk.translation();
+            cout<<"fk origin: "<<origin_fk.transpose()<<endl;
+        }
+    }
+    
     return true;
 }
 

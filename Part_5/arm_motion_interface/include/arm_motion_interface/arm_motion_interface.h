@@ -49,6 +49,7 @@ private:
     std::vector<Eigen::VectorXd> des_path;
     trajectory_msgs::JointTrajectory des_trajectory_, des_trajectory_segment_; // holder for planned trajectory
     std::vector<trajectory_msgs::JointTrajectory> multi_traj_vec_; //holder for multiple traj segments
+    
     Eigen::VectorXd q_lower_limits_,q_upper_limits_,qdot_max_vec_,q_home_pose_; 
 
     ros::Publisher traj_publisher_; //<trajectory_msgs::JointTrajectory>;// = nh.advertise<trajectory_msgs::JointTrajectory>;//("joint_path_command", 1);   
@@ -186,12 +187,18 @@ public:
     
     bool append_multi_traj_cart_segment();
     bool append_multi_traj_jspace_segment();
+    void get_num_path_segs();
+    void replan_discontinuities();
     
     //handy utilities, primarily used internally, but publicly accessible
     void compute_tool_stamped_pose(void);    
     Eigen::Affine3d xform_gripper_pose_to_affine_flange_wrt_base(geometry_msgs::PoseStamped des_pose_gripper);
     void display_affine(Eigen::Affine3d affine);    
     geometry_msgs::PoseStamped get_current_tool_stamped_pose() {  return current_gripper_stamped_pose_; };
+    
+    //SPLICE_DISCONTINUOUS_TRAJ
+    //GOTO_NSEG_START
+    //eval_traj_continuity()
     
     //Eigen::Affine3d transformTFToEigen(const tf::Transform &t);
     //Eigen::Affine3d transformPoseToEigenAffine3d(geometry_msgs::Pose pose);

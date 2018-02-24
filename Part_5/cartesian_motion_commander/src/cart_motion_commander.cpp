@@ -193,6 +193,75 @@ int CartMotionCommander::clear_multi_traj_plan(void) {
     }
 }
 
+int  CartMotionCommander::get_path_num_segments() {
+    ROS_INFO("sending inquiry for number of path continuous segments");
+    cart_goal_.command_code = arm_motion_action::arm_interfaceGoal::GET_NUM_PATH_SEGMENTS;
+    int numsegs;
+    got_done_callback_ = false; //flag to check if got callback
+    cart_move_action_client_.sendGoal(cart_goal_, boost::bind(&CartMotionCommander::doneCb_, this, _1, _2)); // we could also name additional callback functions here, if desired
+    //double max_wait_time = 2.0;
+
+    //finished_before_timeout_ = cart_move_action_client_.waitForResult(ros::Duration(2.0));
+    //bool finished_before_timeout = action_client.waitForResult(); // wait forever...
+    if (!cb_received_in_time(MAX_WAIT_TIME)) {
+        ROS_WARN("giving up waiting on result");
+        return 0;
+    } else {
+        //ROS_INFO("finished before timeout");
+        //ROS_INFO("return code: %d", cart_result_.return_code);
+        numsegs = cart_result_.num_path_segs;
+        ROS_INFO("planner reported %d continuous segments in planned traj",numsegs);
+        return numsegs;
+    }    
+    
+}
+
+//should already have arrival times in result message; merely copy these vals into arg
+void CartMotionCommander::get_replanned_arrival_times(std::vector<double> &segment_arrival_times)  {
+    //ROS_INFO("sending inquiry for sub-segment arrival times");
+    //cart_goal_.command_code = arm_motion_action::arm_interfaceGoal::GET_REPLANNED_ARRIVAL_TIMES;
+    int numsegs;
+    //got_done_callback_ = false; //flag to check if got callback
+    //cart_move_action_client_.sendGoal(cart_goal_, boost::bind(&CartMotionCommander::doneCb_, this, _1, _2)); // we could also name additional callback functions here, if desired
+    //double max_wait_time = 2.0;
+
+    //finished_before_timeout_ = cart_move_action_client_.waitForResult(ros::Duration(2.0));
+    //bool finished_before_timeout = action_client.waitForResult(); // wait forever...
+    //if (!cb_received_in_time(MAX_WAIT_TIME)) {
+    //    ROS_WARN("giving up waiting on result");
+    //    return;
+    //} else {
+        //ROS_INFO("finished before timeout");
+        //ROS_INFO("return code: %d", cart_result_.return_code);
+        numsegs = cart_result_.segmented_path_arrival_times.size();
+        segment_arrival_times.clear();
+        for (int i=0;i<numsegs;i++) {
+            segment_arrival_times.push_back(cart_result_.segmented_path_arrival_times[i]);
+            ROS_INFO("arrival time %d is %f",i,segment_arrival_times[i]);
+        }
+            
+}
+
+void CartMotionCommander::replan_discontinuities() {
+        ROS_INFO("sending command to segment path into continuous sub-segments");
+    cart_goal_.command_code = arm_motion_action::arm_interfaceGoal::REPLAN_DISCONTINUITIES;
+    got_done_callback_ = false; //flag to check if got callback
+    cart_move_action_client_.sendGoal(cart_goal_, boost::bind(&CartMotionCommander::doneCb_, this, _1, _2)); // we could also name additional callback functions here, if desired
+    //double max_wait_time = 2.0;
+
+    //finished_before_timeout_ = cart_move_action_client_.waitForResult(ros::Duration(2.0));
+    //bool finished_before_timeout = action_client.waitForResult(); // wait forever...
+    if (!cb_received_in_time(MAX_WAIT_TIME)) {
+        ROS_WARN("giving up waiting on result");
+        return;
+    } else {
+        ROS_INFO("finished before timeout");
+        ROS_INFO("return code: %d", cart_result_.return_code);
+    }
+        
+    
+}
+
 
 geometry_msgs::PoseStamped CartMotionCommander::get_tool_pose_stamped(void) { // { return tool_pose_stamped_;};    
     ROS_INFO("requesting tool pose");

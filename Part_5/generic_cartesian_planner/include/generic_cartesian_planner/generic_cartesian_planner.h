@@ -27,6 +27,7 @@ using namespace std;
 //choose cartesian-path sampling resolution, e.g. 5cm
 const double CARTESIAN_PATH_SAMPLE_SPACING = 0.05; // choose the resolution of samples along Cartesian path
 const double CARTESIAN_PATH_FINE_SAMPLE_SPACING = 0.005; // fine resolution for precision motion
+const double JOINT_DISCONTINUITY_THRESHOLD = 0.5; // decide what is too much dtheta to tolerate in cartesian traj
 
 class CartTrajPlanner {
 private:
@@ -50,6 +51,8 @@ private:
     CartesianInterpolator cartesianInterpolator_; //cartesianInterpolator_
     int NJNTS_;
     vector<string> jnt_names_;
+    std::vector<int> seg_pts_;
+    int path_continuity_nsegs_;
    
 public:
     CartTrajPlanner(IKSolver * pIKSolver, FwdSolver * pFwdSolver, int njnts); //define the body of the constructor outside of class definition
@@ -57,6 +60,8 @@ public:
     ~CartTrajPlanner(void) {
     }
     void set_njnts(int njnts) {NJNTS_ = njnts;};
+    int get_num_path_segs() { return path_continuity_nsegs_; };
+    void get_seg_pts(std::vector<int> &seg_pts) { seg_pts = seg_pts_;};
     void set_jspace_planner_weights(vector<double> planner_joint_weights); //Eigen::VectorXd jspace_planner_weights);
        //{jspace_planner_weights_ = jspace_planner_weights; };
     void set_joint_names(vector<string> jnt_names);
@@ -82,6 +87,8 @@ public:
     bool plan_cartesian_path_w_rot_interp(Eigen::VectorXd q_start,Eigen::Affine3d a_flange_end, 
         int nsteps,  std::vector<Eigen::VectorXd> &optimal_path);
     void path_to_traj(std::vector<Eigen::VectorXd> qvecs, double arrival_time, trajectory_msgs::JointTrajectory &new_trajectory); 
+    int segment_path_discontinuities(std::vector<Eigen::VectorXd> path,std::vector<int> &seg_pts);
+    void replan_discontinuities();
     //cartTrajPlanner_.jspace_trivial_path_planner(q_start, q_goal, optimal_path_);
     //the next version takes a required start pose in jointspace and plans as above to destination pose
     /*

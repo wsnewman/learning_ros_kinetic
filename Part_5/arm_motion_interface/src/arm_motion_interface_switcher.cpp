@@ -99,7 +99,16 @@ void ArmMotionInterface::executeCB(const actionlib::SimpleActionServer<arm_motio
         case arm_motion_action::arm_interfaceGoal::APPEND_MULTI_TRAJ_JSPACE_SEGMENT:
             ROS_INFO("responding to request APPEND_MULTI_TRAJ_JSPACE_SEGMENT");
             append_multi_traj_jspace_segment();
-            break;               
+            break;           
+            
+        case arm_motion_action::arm_interfaceGoal::GET_NUM_PATH_SEGMENTS:
+            ROS_INFO("responding to request GET_NUM_PATH_SEGMENTS");
+            get_num_path_segs();
+            break;    
+         case arm_motion_action::arm_interfaceGoal::REPLAN_DISCONTINUITIES:
+            ROS_INFO("responding to request REPLAN_DISCONTINUITIES");
+            replan_discontinuities();
+            break;            
     
         default:
             ROS_WARN("this command mode is not defined: %d", command_mode_);

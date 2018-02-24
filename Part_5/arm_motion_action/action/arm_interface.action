@@ -28,9 +28,14 @@ uint8 PLAN_CARTESIAN_TRAJ_QPREV_TO_DES_TOOL_POSE = 25
 uint8 CLEAR_MULTI_TRAJ_PLAN = 26
 uint8 APPEND_MULTI_TRAJ_CART_SEGMENT = 27
 uint8 APPEND_MULTI_TRAJ_JSPACE_SEGMENT = 28
-
+uint8 TEST_PATH_FOR_DISCONTINUITIES = 29
+uint8 GET_NUM_PATH_SEGMENTS = 30
+uint8 GET_REPLANNED_ARRIVAL_TIMES = 31
+uint8 REPLAN_DISCONTINUITIES = 32
 
 uint8 REFINE_PLANNED_TRAJECTORY = 41 #if used approx IK soln, use this option to refine solns
+uint8 SEGMENT_DISCONTINUOUS_TRAJ = 42 #if soln is discontinuous, segment it into a multi-traj plan
+# return the number of new segments and their respective arrival times
 
 # request to preview plan:
 #uint8 DISPLAY_TRAJECTORY = 50
@@ -39,6 +44,9 @@ uint8 REFINE_PLANNED_TRAJECTORY = 41 #if used approx IK soln, use this option to
 uint8 EXECUTE_PLANNED_TRAJ = 100
 #specify a segment number to be executed from a multi-segment trajectory
 uint8 EXECUTE_TRAJ_NSEG = 101
+#for a path with discontinuities, command arm to go to first pose of segment nseg
+#specify the path segment in element "nseg"
+uint8 GOTO_NSEG_START = 102
 
 #uint8 ARM_DESCEND_20CM=101
 #uint8 ARM_DEPART_20CM=102
@@ -67,13 +75,20 @@ uint8 ARM_RECEIVED_AND_COMPLETED_RQST=5
 uint8 PATH_IS_VALID=6
 uint8 PATH_NOT_VALID=7
 
+
 uint8 COMMAND_CODE_NOT_RECOGNIZED=8
 uint8 ARM_STATUS_UNDEFINED=9
 uint8 NOT_FINISHED_BEFORE_TIMEOUT=10
 
+uint8 PATH_HAS_DISCONTINUITIES=11
 
+#return code of PATH_HAS_DISCONTINUITIES requires further processing
 int32 return_code
 int32 err_code
+#if motion would require discontinuities, e.g. wrist flip, specify here the
+#number of smooth path segments.  E.g., one wrist flip--> 2 path segments
+int32 num_path_segs
+float64[] segmented_path_arrival_times
 string err_msg
 float64 computed_arrival_time
 float64[] q_arm

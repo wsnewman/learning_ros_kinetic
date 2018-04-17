@@ -971,7 +971,9 @@ void PclUtils::initializeSubscribers() {
     // add more subscribers here, as needed
 
     // subscribe to "selected_points", which is published by Rviz tool
-    selected_points_subscriber_ = nh_.subscribe<sensor_msgs::PointCloud2> ("/selected_points", 1, &PclUtils::selectCB, this);
+    //selected_points_subscriber_ = nh_.subscribe<sensor_msgs::PointCloud2> ("/selected_points", 1, &PclUtils::selectCB, this);
+    selected_points_subscriber_ = nh_.subscribe<sensor_msgs::PointCloud2> ("/selected_patch", 1, &PclUtils::selectCB, this);
+    
 }
 
 //member helper function to set up publishers;

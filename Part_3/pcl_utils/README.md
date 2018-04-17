@@ -24,5 +24,16 @@ Start up a roscore, start up Rviz.
 In another terminal, navigate to the directory containing the point-cloud file.  Run display_pcd_file or find_plane_pcd_file.  Respond to the prompt
 with a valid PCD file name (e.g. kinect_clr_snapshot).
 
+Note: to use a physical Kinect device, plug the USB cable into the SAME computer that runs the Kinect
+driver code, and start the  driver  code with:
+`roslaunch freenect_launch freenect.launch`
+
+Topic: /camera/depth_registered/points
+frame: camera_rgb_optical_frame or camera_depth_frame
+
+also, "publish selected patch"  is better than "publish selected points" tool in rviz.
+Rviz will  crash if select too many points.  Best to display the downsampled version,  so fewer points
+are selected and republished.
+
 
     

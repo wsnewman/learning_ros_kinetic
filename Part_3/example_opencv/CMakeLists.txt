@@ -38,6 +38,9 @@ cs_add_executable(find_features src/find_features.cpp)
 # edit the arguments to reference the named node and named library within this package
 # target_link_libraries(example my_lib)
 
+target_link_libraries( find_red_pixels ${OpenCV_LIBS})
+target_link_libraries( find_features ${OpenCV_LIBS})
+
 cs_install()
 cs_export()
     

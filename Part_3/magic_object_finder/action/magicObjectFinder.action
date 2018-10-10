@@ -1,0 +1,21 @@
+#objectFinder.action
+#goal:
+#get object ID codes from <object_manipulation_properties/object_ID_codes.h>
+#goal field to fill in: name of object of interest
+string object_name
+---
+#result
+int32 SUCCESS =0 
+int32 OBJECT_FOUND=0 #synonym for SUCCESS
+int32 OBJECT_NOT_FOUND=1
+int32 OBJECT_FINDER_CANCELLED=4
+#return the identified pose here:
+int32 found_object_code
+geometry_msgs/PoseStamped object_pose
+---
+#feedback: optional; 
+#int32 OBJECT_FINDER_BUSY=3 
+#int32 fdbk
+
+
+

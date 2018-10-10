@@ -35,6 +35,8 @@ catkin_simple()
 cs_add_executable(irb120_ctl_interface src/irb120_ctl_interface.cpp)
 #cs_add_executable(interactive_irb5400_sender src/interactive_irb5400_sender.cpp)
 cs_add_executable(test_traj_sender_irb120 src/test_traj_sender_irb120.cpp)
+cs_add_executable(test_traj_sin_sender_irb120 src/test_traj_sin_sender_irb120.cpp)
+
 
 #the following is required, if desire to link a node in this package with a library created in this same package
 # edit the arguments to reference the named node and named library within this package

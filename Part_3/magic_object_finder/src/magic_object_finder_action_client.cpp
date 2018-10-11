@@ -13,7 +13,7 @@
 
 
 geometry_msgs::PoseStamped g_perceived_object_pose;
-ros::Publisher *g_pose_publisher;
+//ros::Publisher *g_pose_publisher;
 
 int g_found_object_code;
 
@@ -36,7 +36,7 @@ void objectFinderDoneCb(const actionlib::SimpleClientGoalState& state,
                  g_perceived_object_pose.pose.orientation.y,
                  g_perceived_object_pose.pose.orientation.z,
                  g_perceived_object_pose.pose.orientation.w);
-         g_pose_publisher->publish(g_perceived_object_pose);
+
     }
     else {
         ROS_WARN("object not found!");
@@ -61,11 +61,12 @@ int main(int argc, char** argv) {
     }
     ROS_INFO("connected to object_finder action server"); // if here, then we connected to the server; 
     ros::Publisher pose_publisher = nh.advertise<geometry_msgs::PoseStamped>("triad_display_pose", 1, true); 
-    g_pose_publisher = &pose_publisher;
+    //g_pose_publisher = &pose_publisher;
     magic_object_finder::magicObjectFinderGoal object_finder_goal;
     object_finder_goal.object_name = "gear_part_ariac"; //irb120"; 
 
     object_finder_ac.sendGoal(object_finder_goal,&objectFinderDoneCb); 
+    ros::spinOnce();
         
         bool finished_before_timeout = object_finder_ac.waitForResult(ros::Duration(10.0));
         //bool finished_before_timeout = action_client.waitForResult(); // wait forever...
@@ -83,6 +84,7 @@ int main(int argc, char** argv) {
         ROS_WARN("object not found!:");
         return 1;
     }
+
 
 }
 

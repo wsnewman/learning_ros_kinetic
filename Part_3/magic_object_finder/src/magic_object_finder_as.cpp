@@ -31,6 +31,7 @@ private:
     magic_object_finder::magicObjectFinderResult result_; // put results here, to be sent back to the client when done w/ goal
     magic_object_finder::magicObjectFinderFeedback feedback_; // not used in this example; 
     // would need to use: as_.publishFeedback(feedback_); to send incremental feedback to the client
+    ros::Publisher pose_publisher_;// = nh.advertise<geometry_msgs::PoseStamped>("triad_display_pose", 1, true);
 
 
     bool find_named_object(string  object_name, geometry_msgs::PoseStamped &object_pose);
@@ -51,6 +52,8 @@ object_finder_as_(nh_, "object_finder_action_service", boost::bind(&MagicObjectF
     // do any other desired initializations here...specific to your implementation
  
     object_finder_as_.start(); //start the server running
+
+    pose_publisher_ = nh_.advertise<geometry_msgs::PoseStamped>("triad_display_pose", 1, true);
     //tfListener_ = new tf::TransformListener; //create a transform listener    
 }
 
@@ -89,6 +92,7 @@ bool MagicObjectFinder::find_named_object(string  object_name, geometry_msgs::Po
     object_pose.pose.orientation.y = g_ms_msg.pose[object_num].orientation.y;
     object_pose.pose.orientation.z = g_ms_msg.pose[object_num].orientation.z;
     object_pose.pose.orientation.w = g_ms_msg.pose[object_num].orientation.w;
+    pose_publisher_.publish(object_pose);
     return found_object;
 
 }

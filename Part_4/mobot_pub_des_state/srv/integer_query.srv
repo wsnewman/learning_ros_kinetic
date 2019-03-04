@@ -1,0 +1,4 @@
+#empty 
+---
+#response: an integer
+int32 int_val

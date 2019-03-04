@@ -86,9 +86,9 @@ void SteeringController::odomCallback(const nav_msgs::Odometry& odom_rcvd) {
     odom_quat_ = odom_rcvd.pose.pose.orientation;
     //odom publishes orientation as a quaternion.  Convert this to a simple heading
     odom_phi_ = convertPlanarQuat2Phi(odom_quat_); // cheap conversion from quaternion to heading for planar motion
-    g_odom_tf_x = odom_x_;
-    g_odom_tf_y = odom_y_;
-    g_odom_tf_phi = odom_phi_;
+    //g_odom_tf_x = odom_x_; GET RID OF THESE: get them via odomTF and "main"
+    //g_odom_tf_y = odom_y_;
+    //g_odom_tf_phi = odom_phi_;
     // let's put odom x,y in an Eigen-style 2x1 vector; convenient for linear algebra operations
     //odom_xy_vec_(0) = odom_x_;
     //odom_xy_vec_(1) = odom_y_;   

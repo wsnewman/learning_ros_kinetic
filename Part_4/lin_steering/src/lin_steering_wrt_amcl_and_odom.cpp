@@ -22,6 +22,7 @@ SteeringController::SteeringController(ros::NodeHandle* nodehandle):nh_(*nodehan
     initializePublishers();
     //initializeServices();
     
+    /* old...don't wait on this
     g_odom_tf_phi = 1000.0; // put in impossible value for heading; test this value to make sure we have received a viable odom message
     ROS_INFO("waiting for valid odomTf update...");
     while (g_odom_tf_phi > 500.0) {
@@ -30,7 +31,7 @@ SteeringController::SteeringController(ros::NodeHandle* nodehandle):nh_(*nodehan
         ros::spinOnce();
     }
     ROS_INFO("constructor: got an odomTf update");    
-
+    */
     
     //initialize desired state, in case this is not yet being published adequately
     des_state_ = current_odom_;  // use the current odom state
@@ -54,11 +55,15 @@ SteeringController::SteeringController(ros::NodeHandle* nodehandle):nh_(*nodehan
 
 }
 
+
 //member helper function to set up subscribers;
 void SteeringController::initializeSubscribers() {
     ROS_INFO("Initializing Subscribers: odom and desState");
     // SUBSCRIBE TO IMPERFECT ODOM, drifty_odom
-    odom_subscriber_ = nh_.subscribe("/odom", 1, &SteeringController::odomCallback, this); //subscribe to odom messages
+    //BUT  DON'T SUBSCRIBE IF USING ODOM_TF
+    // ODOM_TF merges amcl and odom to get fast updates (w/ zero drift) of robot pose w/rt map
+    
+    //odom_subscriber_ = nh_.subscribe("/odom", 1, &SteeringController::odomCallback, this); //subscribe to odom messages
     // add more subscribers here, as needed
     des_state_subscriber_ = nh_.subscribe("/desState", 1, &SteeringController::desStateCallback, this); // for desired state messages
 }

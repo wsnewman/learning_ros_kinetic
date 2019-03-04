@@ -37,7 +37,7 @@
 #include <pcl/features/normal_3d.h>
 #include <pcl/filters/extract_indices.h>
 #include <pcl_ros/transforms.h>
-#include <pcl-1.7/pcl/impl/point_types.hpp>
+//#include <pcl-1.7/pcl/impl/point_types.hpp>
 
 #include <pcl/filters/passthrough.h>
 #include <pcl/filters/voxel_grid.h> 

@@ -1,0 +1,25 @@
+to enable gripper manually:
+
+rosrun cwru_sticky_fingers finger_control_dummy_node /sticky_finger/link6 false
+
+dev notes:
+start up robot with:
+roslaunch irb140_description irb140.launch
+
+start up Cartesian-move action server:
+rosrun irb140_planner irb140_cart_move_as
+
+
+run a test pgm:
+rosrun cartesian_motion_commander example_generic_cartesian_move_ac
+
+MODIFY the above to give feasible Cartesian moves (e.g., gripper pointing down, reachable poses)
+
+
+add generic gripper interface
+
+NOTE: still have a problem w/ interface command topic:
+/irb140/arm_controller/command
+(vs ROS-I path command topic)s
+
+

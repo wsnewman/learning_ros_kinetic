@@ -1,0 +1,14 @@
+example: run with
+
+start the simu:
+roslaunch irb140_description irb140.launch 
+
+start the cartesian-move action server:
+rosrun irb140_planner irb140_cart_move_as
+
+add a model, e.g. gear part, to x,y,z = 0.5,0,0
+
+run an example manipulation pgm to approach the part, grasp, depart, then drop it;
+
+rosrun cartesian_motion_commander example_generic_cartesian_move_ac4
+

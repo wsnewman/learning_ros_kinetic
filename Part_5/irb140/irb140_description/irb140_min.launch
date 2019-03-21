@@ -1,0 +1,20 @@
+<launch>
+
+  <param name="robot_description"
+	 command="$(find xacro)/xacro --inorder '$(find irb140_description)/urdf/irb140_min.xacro'" />
+
+  <!--load the control config onto the parameter server-->
+  <rosparam file="$(find irb140_control)/config/irb140_traj_control.yaml" command="load"/>
+
+  <!-- Run a python script to the send a service call to gazebo_ros to spawn a URDF robot -->
+  <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen" args="-urdf -model irb140 -param robot_description"/>
+
+
+ <!-- start the arm controller-->
+  <node name="arm_controller_spawner" pkg="controller_manager" type="spawner" args="arm_controller joint_state_controller" respawn="false" output="screen"  ns="/irb140" />  
+
+<!--node out publish joint states (positions, velocities, efforts) -->
+<node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher"/>
+
+
+</launch>

@@ -1,0 +1,35 @@
+fk test:
+at home pose (all zero angles):
+
+
+rosrun tf tf_echo system_ref_frame link5
+- Translation: [0.450, 0.000, 0.712]
+
+fk test main:
+des fwd kin wrist point: 0.45, 5.41395e-08, 0.712
+(agrees!!)
+
+
+---jnts all 0:
+des fwd kin wrist point: 0.45, 1.38327e-07, 0.712
+- Translation: [0.450, 0.000, 0.712]
+
+
+---jnt 1 = 1.0: 
+- Translation: [0.243, 0.379, 0.712]
+rosrun irb140_fk_ik irb140_fk_ik_test_main
+des fwd kin wrist point: 0.243136, 0.378662, 0.712
+
+---jnt 2 at 1.0:
+des fwd kin wrist point: 0.578244, 8.93058e-08, 0.22675
+- Translation: [0.578, 0.000, 0.227]
+
+---jnt 3 at 1.0:
+rosrun tf tf_echo system_ref_frame link5
+- Translation: [0.275, 0.000, 0.392]
+des fwd kin wrist point: 0.275315, 3.31433e-08, 0.392241
+
+
+
+
+

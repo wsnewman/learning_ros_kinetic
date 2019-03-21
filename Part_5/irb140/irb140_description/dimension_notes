@@ -1,0 +1,26 @@
+irb140 params:
+height to shoulder = 352mm = d1
+offset z0 to z1 = 70mm = link1 length a1
+distance z1 to elbow z2 = 712-352 = 360mm = a2 (d2=0, alpha2 = 0)
+z3 forearm rot intersects z2--> a3=d3=0 alpha3 = +/- pi/2
+z4 = wrist bend: a4=0; d34 = 380mm; alpha4 = +/- pi/2
+z5 = flange rot, a5=d5=0, alpha5 = +/- pi/2
+define final frame w/ z6 pointing out from flange:
+a6=0, d6 = 65mm, alpha6 = 0 or pi
+
+
+vel limits, (deg/sec): 200,200,260,360,360,450
+
+range of motion (deg): 360,200,280, 400, 230, 800
+
++/- 180
++110/90
++50/-230
+200/-200
+115/-115
+400/-400
+
+
+note: 140 has offset shoulder from base (a1 != 0), whereas 120 DOES  have offset
+120 has offset from elbow to forearm, appears that 140 does not
+

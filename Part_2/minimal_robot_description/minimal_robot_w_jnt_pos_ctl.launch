@@ -1,0 +1,21 @@
+<launch>
+  <!-- load the robot model onto the parameter server-->
+  <param name="robot_description"
+	 command="$(find xacro)/xacro --inorder '$(find minimal_robot_description)/minimal_robot_description_w_jnt_pos_ctl.xacro'" />
+
+
+  <!-- Load joint controller configurations from YAML file to parameter server -->
+  <rosparam file="$(find minimal_robot_description)/control_config/one_dof_pos_ctl_params.yaml" command="load"/>
+
+
+  <!-- Spawn a robot into Gazebo -->
+  <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
+     args="-param robot_description -urdf -model one_DOF_robot" />
+  
+ <!-- start the arm controller-->
+  <node name="arm_controller_spawner" pkg="controller_manager" type="spawner" args="arm_controller joint_state_controller" respawn="false" output="screen"  ns="/one_DOF_robot" />  
+
+<!--node out publish joint states (positions, velocities, efforts) -->
+<node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher"/>
+  
+</launch>

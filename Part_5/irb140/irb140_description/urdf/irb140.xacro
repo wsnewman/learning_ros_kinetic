@@ -1,0 +1,468 @@
+<?xml version="1.0"?>
+<!-- Revolute-Revolute Manipulator -->
+<robot name="irb140" xmlns:xacro="http://www.ros.org/wiki/xacro">
+<!--
+height to shoulder = 352mm = d1
+offset z0 to z1 = 70mm = link1 length a1
+distance z1 to elbow z2 = 712-352 = 360mm = a2 (d2=0, alpha2 = 0)
+z3 forearm rot intersects z2: a3=d3=0 alpha3 = +/- pi/2
+z4 = wrist bend: a4=0; d34 = 380mm; alpha4 = +/- pi/2
+z5 = flange rot, a5=d5=0, alpha5 = +/- pi/2
+define final frame w/ z6 pointing out from flange:
+a6=0, d6 = 65mm, alpha6 = 0 or pi
+
+the following is based on: https://github.com/FreddyMartinez/abb_irb140_support
+added gazebo control interface for simus
+-->
+
+  <!-- Import all Gazebo-customization elements, including Gazebo colors -->
+  <xacro:include filename="$(find irb140_description)/urdf/irb140.gazebo" />
+
+  <!-- Import Rviz colors -->
+  <xacro:include filename="$(find irb140_description)/urdf/materials.xacro" />
+
+  <!-- Used for fixing robot to Gazebo 'base_link' -->
+  <link name="world"/>
+
+  <joint name="fixed" type="fixed">
+    <parent link="world"/>
+    <child link="base_link"/>
+  </joint>
+
+  <!-- also, define a flange frame consistent w/ DH and IK library; z-axis pointing out from flange -->  
+    <link name="flange_frame"/>
+
+  <joint name="flange_frame_jnt" type="fixed">
+    <parent link="link6"/>
+    <child link="flange_frame"/>
+    <origin xyz="0 0 0" rpy="0 1.5708 0"/>
+  </joint>
+
+
+  <link name="vacuum_gripper_link">
+      <collision>
+          <origin xyz="0 0 0.07" rpy="0 0 0"/>
+          <geometry>
+            <cylinder length="0.14" radius="0.015"/> 
+          </geometry>
+      </collision>
+
+      <visual>
+          <origin xyz="0 0 0.07" rpy="0 0 0"/>
+          <geometry>
+            <cylinder length="0.14" radius="0.015"/> 
+          </geometry>
+          <material name="vacuum_link_color">
+              <color rgba="1 0 0 1.0"/>
+          </material>
+      </visual>
+
+      <inertial>
+          <mass value="0.01" />
+          <origin xyz="0 0 0" rpy="0 0 0"/>
+          <inertia ixx="0.01" ixy="0" ixz="0" iyy="0.01" iyz="0" izz="0.01" />
+      </inertial>
+  </link>
+  
+
+  <joint name="vacuum_gripper_jnt" type="fixed">
+    <parent link="flange_frame"/>
+    <child link="vacuum_gripper_link"/>
+  </joint>
+
+
+
+
+  <!-- Base Link -->
+    <link name="base_link">
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://irb140_description/meshes/irb140/visual/base_link.stl" scale="0.01 0.01 0.01"/>
+      </geometry>
+    <material name="orange"/>
+    
+    </visual>
+    <!--collision>
+      <geometry>
+        <mesh filename="package://irb140_description/meshes/irb140/collision/base_link.stl" scale="0.01 0.01 0.01"/>
+      </geometry>
+      <material name="yellow">
+        <color rgba="0 1 1 1"/>
+      </material>
+    </collision-->
+
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="1"/>
+      <inertia
+	  ixx="1.0" ixy="0.0" ixz="0.0"
+	  iyy="1.0" iyz="0.0"
+	  izz="1.0"/>
+    </inertial>
+  </link>
+
+
+  <link name="link1">
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://irb140_description/meshes/irb140/visual/link_1.stl" scale="0.01 0.01 0.01"/>
+      </geometry>
+     <material name="orange"/>
+    </visual>
+    <!--collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://irb140_description/meshes/irb140/collision/link_1.stl" scale="0.01 0.01 0.01"/>
+      </geometry>
+      <material name="yellow"/>
+    </collision-->
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="1"/>
+      <inertia
+	  ixx="1.0" ixy="0.0" ixz="0.0"
+	  iyy="1.0" iyz="0.0"
+	  izz="1.0"/>
+    </inertial>
+  </link>
+
+
+  <link name="link2">
+    <visual>
+      <origin rpy="0 0 0" xyz="-0.07 0 -0.352"/>
+      <geometry>
+        <mesh filename="package://irb140_description/meshes/irb140/visual/link_2.stl" scale="0.01 0.01 0.01"/>
+      </geometry>
+     <material name="orange"/>
+    </visual>
+    <!--collision>
+      <origin rpy="0 0 0" xyz="-0.07 0 -0.352"/>
+      <geometry>
+        <mesh filename="package://irb140_description/meshes/irb140/collision/link_2.stl" scale="0.01 0.01 0.01"/>
+      </geometry>
+      <material name="yellow"/>
+    </collision-->
+
+    <inertial>
+      <origin xyz="0 0 -0.2" rpy="0 0 0"/>
+      <mass value="1"/>
+      <inertia
+	  ixx="1.0" ixy="0.0" ixz="0.0"
+	  iyy="1.0" iyz="0.0"
+	  izz="1.0"/>
+    </inertial>
+  </link>
+
+ <link name="link3">
+    <visual>
+      <origin rpy="0 0 0" xyz="-0.07 0.065 -0.712"/>
+      <geometry>
+        <mesh filename="package://irb140_description/meshes/irb140/visual/link_3.stl" scale="0.01 0.01 0.01"/>
+      </geometry>
+      <material name="orange"/>
+    </visual>
+    <!--collision>
+      <origin rpy="0 0 0" xyz="-0.07 0.065 -0.712"/>
+      <geometry>
+        <mesh filename="package://irb140_description/meshes/irb140/collision/link_3.stl" scale="0.01 0.01 0.01"/>
+      </geometry>
+     <material name="yellow"/>
+    </collision-->
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="1"/>
+      <inertia
+	  ixx="1.0" ixy="0.0" ixz="0.0"
+	  iyy="1.0" iyz="0.0"
+	  izz="1.0"/>
+    </inertial>
+  </link>
+
+  <link name="link4">
+    <visual>
+      <origin rpy="0 0 0" xyz="-0.309 0 -0.712"/>
+      <geometry>
+        <mesh filename="package://irb140_description/meshes/irb140/visual/link_4.stl" scale="0.01 0.01 0.01"/>
+      </geometry>
+      <material name="orange"/>
+    </visual>
+    <!--collision>
+      <origin rpy="0 0 0" xyz="-0.309 0 -0.712"/>
+      <geometry>
+        <mesh filename="package://irb140_description/meshes/irb140/collision/link_4.stl" scale="0.01 0.01 0.01"/>
+      </geometry>
+      <material name="yellow"/>
+    </collision-->
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="1"/>
+      <inertia
+	  ixx="1.0" ixy="0.0" ixz="0.0"
+	  iyy="1.0" iyz="0.0"
+	  izz="1.0"/>
+    </inertial>
+  </link>
+
+ <link name="link5">
+    <visual>
+      <origin rpy="0 0 0" xyz="-0.450 0 -0.712"/>
+      <geometry>
+        <mesh filename="package://irb140_description/meshes/irb140/visual/link_5.stl" scale="0.01 0.01 0.01"/>
+      </geometry>
+      <material name="orange"/>
+    </visual>
+    <!--collision>
+      <origin rpy="0 0 0" xyz="-0.450 0 -0.712"/>
+      <geometry>
+        <mesh filename="package://irb140_description/meshes/irb140/collision/link_5.stl" scale="0.01 0.01 0.01"/>
+      </geometry>
+      <material name="yellow"/>
+    </collision-->
+
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="1"/>
+      <inertia
+	  ixx="1.0" ixy="0.0" ixz="0.0"
+	  iyy="1.0" iyz="0.0"
+	  izz="1.0"/>
+    </inertial>
+
+  </link>
+
+  <link name="link6">
+    <visual>
+      <origin rpy="0 0 0" xyz="-0.515 0 -0.712"/>
+      <geometry>
+        <mesh filename="package://irb140_description/meshes/irb140/visual/link_6.stl" scale="0.01 0.01 0.01"/>
+      </geometry>
+      <material name="orange"/>
+    </visual>
+    <!--collision>
+      <origin rpy="0 0 0" xyz="-0.515 0 -0.712"/>
+      <geometry>
+        <mesh filename="package://irb140_description/meshes/irb140/collision/link_6.stl" scale="0.01 0.01 0.01"/>
+      </geometry>
+      <material name="yellow"/>
+    </collision-->
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="1"/>
+      <inertia
+	  ixx="1.0" ixy="0.0" ixz="0.0"
+	  iyy="1.0" iyz="0.0"
+	  izz="1.0"/>
+    </inertial>
+  </link>
+
+  <!--link name="tool0"/-->
+
+
+
+  
+  <joint name="joint_1" type="revolute">
+    <parent link="base_link"/>
+    <child link="link1"/>
+    <origin xyz="0 0 0.0" rpy="0 0 0"/>
+    <limit effort="100" lower="-3.1416" upper="3.1416" velocity="2.618"/>
+    <axis xyz="0 0 1"/>
+    <dynamics damping="0.7"/>
+  </joint>
+
+  <joint name="joint_2" type="revolute">
+    <parent link="link1"/>
+    <child link="link2"/>
+    <origin rpy="0 0 0" xyz="0.070 0 0.352"/>
+    <axis xyz="0 1 0"/>
+    <limit effort="500" lower="-1.7453" upper="1.7453" velocity="2.618"/>   
+    <dynamics damping="1.7"/>
+  </joint>
+
+  <joint name="joint_3" type="revolute">
+    <parent link="link2"/>
+    <child link="link3"/>
+    <origin rpy="0 0 0" xyz="0 -0.065 0.360"/>
+    <axis xyz="0 1 0"/>
+   <limit effort="100" lower="-3.49" upper="3.49" velocity="6.2832"/>  
+    <dynamics damping="1.7"/>
+  </joint>  
+
+  <joint name="joint_4" type="revolute">
+    <parent link="link3"/>
+    <child link="link4"/>
+    <origin rpy="0 0 0" xyz="0.239 0.065 0"/>
+    <axis xyz="1 0 0"/>
+    <limit effort="20" lower="-3.49" upper="3.49" velocity="6.2832"/> 
+    <dynamics damping="1.7"/>
+  </joint>  
+
+ <joint name="joint_5" type="revolute">
+    <parent link="link4"/>
+    <child link="link5"/>
+    <origin rpy="0 0 0" xyz="0.141 0 0"/>
+    <axis xyz="0 1 0"/>
+     <limit effort="20" lower="-2.0071" upper="2.0071" velocity="6.2832"/>  
+    <dynamics damping="1.7"/>
+  </joint> 
+
+  <joint name="joint_6" type="revolute">
+    <parent link="link5"/>
+    <child link="link6"/>
+    <origin rpy="0 0 0" xyz="0.065 0 0"/>
+    <axis xyz="1 0 0"/>
+     <limit effort="20" lower="-6.9813" upper="6.9813" velocity="7.854"/>  
+    <dynamics damping="0.7"/>
+  </joint> 
+
+  <link name="cam_intermediate_link"/>
+  <joint name="camera_joint" type="fixed">
+      <parent link="world"/>
+      <child link="cam_intermediate_link"/>
+      <origin rpy="0.0 1.5708 1.5708" xyz="0.543 0.321 1.75"/>
+  </joint>
+  
+    <joint name="cam_intermediate_joint" type="fixed">
+      <parent link="cam_intermediate_link"/>
+      <child link="camera_link"/>
+      <origin rpy="0.2 0 0.0" xyz="0 0 0"/>
+  </joint>
+
+  <link name="camera_link">
+    <visual>
+      <origin xyz="0 0 0.0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.1 0.07 0.07"/>
+      </geometry>
+    </visual>
+
+    <inertial>
+      <mass value="1e-5" />
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6" />
+    </inertial>
+  </link>
+    
+  <gazebo>
+     <plugin name="joint_state_publisher" filename="libgazebo_ros_joint_state_publisher.so">
+       <jointName>joint_1, joint_2, joint_3, joint_4, joint_5, joint_6 </jointName>
+       <updateRate>100.0</updateRate>
+     </plugin>
+  </gazebo> 
+
+  <gazebo>
+     <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
+       <robotNamespace>/irb140</robotNamespace>
+      <robotSimType>gazebo_ros_control/DefaultRobotHWSim</robotSimType>
+     </plugin>
+  </gazebo>
+
+<transmission name="tran_1">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="joint_1">
+      <!--hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface-->
+       <hardwareInterface>PositionJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="motor_1">
+      <mechanicalReduction>1</mechanicalReduction>
+      <hardwareInterface>PositionJointInterface</hardwareInterface>      
+    </actuator>
+  </transmission>
+
+
+ <transmission name="tran_2">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="joint_2">
+      <hardwareInterface>PositionJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="motor_2">
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+  <transmission name="tran_3">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="joint_3">
+      <hardwareInterface>PositionJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="motor_3">
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+  
+    <transmission name="tran_4">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="joint_4">
+      <hardwareInterface>PositionJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="motor_4">
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+  
+    <transmission name="tran_5">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="joint_5">
+      <hardwareInterface>PositionJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="motor_5">
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+  
+    <transmission name="tran_6">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="joint_6">
+      <hardwareInterface>PositionJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="motor_6">
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission> 
+
+<!--link6 is merged w/ vacuum_gripper_link due to fixed joint -->
+ <gazebo>
+  <plugin name="vacuum" filename="libsticky_fingers.so">
+    <capacity>100.0</capacity>
+    <link>irb140::link6</link>
+  </plugin>
+ </gazebo>
+
+  <!--xacro:include filename="$(find irb140_description)/urdf/camera_model.xacro" /-->
+ <!-- camera simulator plug-in -->
+  <gazebo reference="camera_link">
+    <sensor type="camera" name="camera">
+      <update_rate>30.0</update_rate>
+      <camera name="camera">
+        <horizontal_fov>1</horizontal_fov>
+        <image>
+          <width>640</width>
+          <height>480</height>
+          <format>R8G8B8</format>
+        </image>
+        <clip>
+          <near>0.005</near>
+          <far>4</far>
+        </clip>
+        <noise>
+          <type>gaussian</type>
+          <mean>0.0</mean>
+          <stddev>0.000</stddev>
+        </noise>
+      </camera>
+      <plugin name="camera_controller" filename="libgazebo_ros_camera.so">
+        <alwaysOn>true</alwaysOn>
+        <updateRate>0.0</updateRate>
+        <cameraName>simple_camera</cameraName>
+        <imageTopicName>image_raw</imageTopicName>
+        <cameraInfoTopicName>camera_info</cameraInfoTopicName>
+        <frameName>camera_link</frameName>
+        <distortionK1>0.0</distortionK1>
+        <distortionK2>0.0</distortionK2>
+        <distortionK3>0.0</distortionK3>
+        <distortionT1>0.0</distortionT1>
+        <distortionT2>0.0</distortionT2>
+      </plugin>
+    </sensor>
+  </gazebo> 
+</robot>

@@ -1,0 +1,34 @@
+abb irb 140:
+
+uses:
+arm_motion_action
+arm_motion_interface  (a library)
+cartesian_motion_commander: contains example applications (uses of arm_motion_interface)
+  example_generic_cart_move_ac4.cpp was created for irb140 testing
+
+cwru_stickyfingers: library for  Gazebo plug-in for attach/detach in Gazebo
+
+exmpl_models: can be convenient for spawning and manipulating models in Gazebo, e.g. toy_block
+
+fk_ik_virtual: declares functions for fk and ik, in general, to be defined for specific robots
+  (deferred); needed to generalize path planning
+
+generic_cartesian_planner: libraries to perform Cartesian sampling, IK, and dynamic programming--> joint-space path
+  defers specification of fk/ik library
+  uses joint_space_planner library for dynamic programming
+
+joint_space_planner: a library; computes optimal path through a (feedforward) graph
+  generic with respect to number of dimensions, number of nodes per layer,
+  and number of layers
+
+irb140_path_cmd: package to illustrate how to  send trajectory commands to irb140;
+  contains an interactive node that prompts for joint num and joint val, packages as a trajectory,
+  and sends to robot (in a loop)
+
+----------------
+ arm_motion_interface, joint-space planner, generic cartesian planner,
+  cartesian-motion commander: all robot agnostic
+fk_ik_virtual
+
+irb140_cart_move_as.cpp:  is robot-specific, presents action server called:
+uses arm_motion_interface

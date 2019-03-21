@@ -1,0 +1,88 @@
+DH for irb140:
+const double DH_a1= 0.070; //0.0;
+const double DH_a2= 0.360; //0.270; //length of humerus
+const double DH_a3= 0.0; //0.070;  //forearm axis intersects elbow axis
+const double DH_a4=0.0;
+const double DH_a5=0.0;
+const double DH_a6=0.0;
+
+
+
+//robot.DH.d='[0.290 0 0 0.302 0 0.072]';
+const double DH_d1 = 0.352; //0.290; //height of shoulder above base
+const double DH_d2 = 0.0;
+const double DH_d3 = 0.0;
+const double DH_d4 = 0.380; //0.302; elbow to wrist along forearm z axis
+const double DH_d5 = 0.0;
+const double DH_d6 = 0.065; //0.072; wrist point to flange face
+
+
+     <joint name="${prefix}joint_1" type="revolute">
+        <origin xyz="0 0 0" rpy="0 0 0"/>  wsn: place first origin at base
+    <joint name="${prefix}joint_2" type="revolute">
+        <origin xyz="0 0 0.705" rpy="0 0 0"/> wsn:  0.070, 0, 0.352  shoulder axis origin
+    <origin rpy="0 0 0" xyz="0.070 0 0.352"/>
+
+    <joint name="${prefix}joint_3" type="revolute">
+        <origin xyz="0 0 0.705" rpy="0 0 0"/>  wsn: 0, 0, 0.360   elbow axis origin
+    <origin rpy="0 0 0" xyz="0 -0.065 0.360"/>
+
+    <joint name="${prefix}joint_4" type="revolute">
+        <origin xyz="0.258 0 0.135" rpy="0 0 0"/>   wsn: 0,0,0  forearm axis origin
+    <origin rpy="0 0 0" xyz="0.239 0.065 0"/>
+
+    <joint name="${prefix}joint_5" type="revolute">
+        <origin xyz="0.497 0 0" rpy="0 0 0"/>    wsn: 0, 0, 0.380 wrist bend axis origin
+    <origin rpy="0 0 0" xyz="0.141 0 0"/>
+
+    <joint name="${prefix}joint_6" type="revolute">
+        <origin xyz="0.085 0 0" rpy="0 0 0"/>  wsn: 0,0,0 flange axis origin
+    <origin rpy="0 0 0" xyz="0.065 0 0"/>
+
+
+   final frame: 0,0,0.065  frame at flange face
+
+
+my 120:
+
+
+const double DH_a1=0.0;
+const double DH_a2=0.270;
+const double DH_a3=0.070;
+const double DH_a4=0.0;
+const double DH_a5=0.0;
+const double DH_a6=0.0;
+
+
+
+//robot.DH.d='[0.290 0 0 0.302 0 0.072]';
+const double DH_d1 = 0.290;
+const double DH_d2 = 0.0;
+const double DH_d3 = 0.0;
+const double DH_d4 = 0.302;
+const double DH_d5 = 0.0;
+const double DH_d6 = 0.072;
+
+//robot.DH.alpha= '[-pi/2 0 -pi/2 pi/2 -pi/2 0]';
+const double DH_alpha1 = -M_PI/2.0;
+const double DH_alpha2 = 0.0;
+const double DH_alpha3 = -M_PI/2.0;
+const double DH_alpha4 = M_PI/2.0;
+const double DH_alpha5 = -M_PI/2.0;
+const double DH_alpha6 = 0.0;
+  <joint name="joint1" type="continuous">
+    <origin xyz="0 0 0.0" rpy="0 0 0"/>
+  <joint name="joint2" type="continuous">
+    <origin rpy="0 0 0" xyz="0 0 0.29"/>  d1
+  <joint name="joint3" type="continuous">
+    <origin rpy="0 0 0" xyz="0 0 0.27"/>  a2
+    <axis xyz="0 1 0"/>
+  <joint name="joint4" type="continuous">
+    <origin rpy="0 0 0" xyz="0 0 0.07"/>  a3
+    <axis xyz="1 0 0"/>
+  <joint name="joint5" type="continuous">
+   <origin rpy="0 0 0" xyz="0.302 0 0"/>  d4
+    <axis xyz="0 1 0"/>
+  <joint name="joint6" type="continuous">
+    <origin rpy="0 0 0" xyz="0.072 0 0"/>  d6
+    <axis xyz="1 0 0"/>

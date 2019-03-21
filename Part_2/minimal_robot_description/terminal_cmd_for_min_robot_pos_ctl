@@ -1,0 +1,1 @@
+ rostopic pub /one_DOF_robot/arm_controller/command trajectory_msgs/JointTrajectory " {joint_names: ['joint_1'], points: [ {time_from_start: {secs: 1}, positions: [1, ]}, {time_from_start: {secs: 2}, positions: [1.76, 0.38, -1.38, 1.5, 3.27, -1.51, 0.0]}, {time_from_start: {secs: 3}, positions: [0]}]}" -1

@@ -1,0 +1,7 @@
+one_DOF_robot/arm_controller:
+  type: "position_controllers/JointTrajectoryController"
+  joints:
+     - joint_1
+one_DOF_robot/joint_state_controller:
+    type: joint_state_controller/JointStateController
+    publish_rate: 50  

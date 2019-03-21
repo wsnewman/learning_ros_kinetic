@@ -18,7 +18,7 @@
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 #include <Eigen/Dense>
-#include <tf_conversions/tf_eigen.h>
+//#include <tf_conversions/tf_eigen.h>
 
 //some globals...
 geometry_msgs::Point vertex1;

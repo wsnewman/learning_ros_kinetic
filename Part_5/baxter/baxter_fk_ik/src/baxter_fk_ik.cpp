@@ -1179,6 +1179,8 @@ bool Baxter_IK_solver::compute_q123_solns(Eigen::Affine3d const& desired_flange_
     }
     soln1_vec[2] = q_humerus[0]; // save these 2 potential solns
     soln2_vec[2] = q_humerus[1]; 
+    //DEBUG:
+    //ROS_INFO("q_humerus: %f, %f",q_humerus[0],q_humerus[1]);
     //double q_h = q_humerus[0];
     // so far, so good; process q_humerus[0] first
     does_fit = fit_q_to_range(q_lower_limits[2],q_upper_limits[2],q_humerus[0]); // confirm q_humerus is within joint limits
@@ -1186,12 +1188,17 @@ bool Baxter_IK_solver::compute_q123_solns(Eigen::Affine3d const& desired_flange_
         //if here, continue to process q_humerus[0]; find corresponding q_s1
         //cout<<"q_humerus[0] is in range: "<<q_humerus[0]<<endl;
         //solve for q_shoulder_elevation
+        //DEBUG humerous joint range:
+        //if (q_humerus[0]>3.14) {
+         //   ROS_WARN("humerus: q_lower_limits[2],q_upper_limits[2],q_humerus[0] = %f, %f, %f",q_lower_limits[2],q_upper_limits[2],q_humerus[0]);
+        //}
         reachable = solve_for_s1_ang(wrist_pt_wrt_right_arm_frame1,q_elbow,  q_humerus[0], q_s1_temp);
         //cout<<"testing q_s1 = "<<q_s1_temp<<endl;
         if (reachable) { //got a soln for q_s1...but is it in joint range?
             if (fit_q_to_range(q_lower_limits[1],q_upper_limits[1],q_s1_temp)) {
                 //if here, then we have a complete, legal soln; push it onto the soln vector
                 soln1_vec[1] = q_s1_temp;
+                soln1_vec[2] = q_humerus[0];
                 q_solns.push_back(soln1_vec);
                 at_least_one_valid_soln = true;
                 //cout<<"soln vec: "<<soln1_vec.transpose()<<endl;
@@ -1207,6 +1214,10 @@ bool Baxter_IK_solver::compute_q123_solns(Eigen::Affine3d const& desired_flange_
     // repeat for 2nd q_humerus soln:
     does_fit = fit_q_to_range(q_lower_limits[2],q_upper_limits[2],q_humerus[1]); // confirm q_humerus is within joint limits
     if (does_fit)  {
+                //DEBUG humerous joint range:
+        //if (q_humerus[0]>3.14) {
+        //    ROS_WARN("humerus soln2: q_lower_limits[2],q_upper_limits[2],q_humerus[1] = %f, %f, %f",q_lower_limits[2],q_upper_limits[2],q_humerus[1]);
+        //}
         //if here, continue to process q_humerus[0]; find corresponding q_s1
         //cout<<"q_humerus[1] is in range: "<<q_humerus[1]<<endl;
         //solve for q_shoulder_elevation
@@ -1216,6 +1227,7 @@ bool Baxter_IK_solver::compute_q123_solns(Eigen::Affine3d const& desired_flange_
             if (fit_q_to_range(q_lower_limits[1],q_upper_limits[1],q_s1_temp)) {
                 //if here, then we have a complete, legal soln; push it onto the soln vector
                 soln2_vec[1] = q_s1_temp;
+                soln2_vec[2] = q_humerus[1];
                 q_solns.push_back(soln2_vec);
                 at_least_one_valid_soln = true;
                 //cout<<"soln vec: "<<soln2_vec.transpose()<<endl;
